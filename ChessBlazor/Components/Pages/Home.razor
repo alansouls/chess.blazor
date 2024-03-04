@@ -1,0 +1,112 @@
+﻿@page "/"
+@using ChessBlazor.Logic
+@using ChessBlazor.Events
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<div class="game">
+    <div id="chess-board">
+        <table class="chess-board">
+            @{ var squareColor = "white"; }
+            @foreach (var i in Enumerable.Range(0, 8))
+            {
+                <tr class="chess-board-line">
+                    @foreach (var j in Enumerable.Range(0, 8))
+                    {
+                        <th class=@($"chess-board-square {squareColor}")>
+                            <Square OnSquareClick="@HandleSquareClick" IsLit="_gameManager.SquareIsLit(i, j)" Piece="_gameManager.GetPiece(i, j)" Coordinates="(i, j)"></Square>
+                        </th>
+                        squareColor = squareColor == "white" ? "black" : "white";
+                    }
+                </tr>
+                squareColor = squareColor == "white" ? "black" : "white";
+            }
+        </table>
+    </div>
+    <div class="game-hud">
+        @if (_gameManager.Winner is "white" or "black")
+        {
+            <h4>Checkmate! @_gameManager.Winner wins!</h4>
+        }
+        <h4>Pieces taken by white</h4>
+        <div class="game-hud-pieces-taken">
+            @foreach (var piece in _gameManager.PiecesTakenByWhite)
+            {
+                <img src="@piece.Image" alt="@piece.Name"/>
+            }
+        </div>
+        <h4>Pieces taken by black</h4>
+        <div class="game-hud-pieces-taken">
+            @foreach (var piece in _gameManager.PiecesTakenByBlack)
+            {
+                <img src="@piece.Image" alt="@piece.Name"/>
+            }
+        </div>
+        @if (_gameManager.IsPromoting)
+        {
+            <h4>Select a piece to promote</h4>
+            <div class="game-hud-pieces-taken">
+                <button class="btn btn-info" @onclick="@PromoteToQueen">
+                    <img src="@($"images/pieces/queen-{_gameManager.ColorPromoting}.png")" alt="Queen"/>
+                </button>
+                <button class="btn btn-info" @onclick="@PromoteToTower">
+                    <img src="@($"images/pieces/tower-{_gameManager.ColorPromoting}.png")" alt="Tower"/>
+                </button>
+                <button class="btn btn-info" @onclick="@PromoteToKnight">
+                    <img src="@($"images/pieces/knight-{_gameManager.ColorPromoting}.png")" alt="Knight"/>
+                </button>
+                <button class="btn btn-info" @onclick="@PromoteToBishop">
+                    <img src="@($"images/pieces/bishop-{_gameManager.ColorPromoting}.png")" alt="Bishop"/>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    private GameManager _gameManager = null!;
+
+    protected override Task OnInitializedAsync()
+    {
+        _gameManager = new GameManager();
+        return Task.CompletedTask;
+    }
+
+    private void HandleSquareClick(SquareClickEventArgs args)
+    {
+        if (args.MouseEventArgs.Button == 0)
+        {
+            if (_gameManager.ClickSquare(args.Position))
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void PromoteToQueen()
+    {
+        _gameManager.PromoteTo("Queen");
+        StateHasChanged();
+    }
+
+    private void PromoteToTower()
+    {
+        _gameManager.PromoteTo("Tower");
+        StateHasChanged();
+    }
+
+    private void PromoteToKnight()
+    {
+        _gameManager.PromoteTo("Knight");
+        StateHasChanged();
+    }
+
+    private void PromoteToBishop()
+    {
+        _gameManager.PromoteTo("Bishop");
+        StateHasChanged();
+    }
+
+}
