@@ -5,7 +5,6 @@ namespace ChessBlazor.Logic;
 public class GameManager
 {
     private bool _isPlaying;
-    private bool _isWhiteTurn;
     private readonly Piece?[][] _board;
     private readonly bool[][] _enPassantTargets;
     private readonly bool[][] _litSquares;
@@ -61,7 +60,7 @@ public class GameManager
         _board[7][6] = new Piece("Knight", "/images/pieces/knight-white.png", "white");
         _board[7][7] = new Piece("Tower", "/images/pieces/tower-white.png", "white");
 
-        _isWhiteTurn = true;
+        IsWhiteTurn = true;
         _isPlaying = false;
         _activePosition = null;
         IsPromoting = false;
@@ -91,7 +90,7 @@ public class GameManager
             _enPassantTargets[i] = new bool[8];
         }
 
-        _isWhiteTurn = true;
+        IsWhiteTurn = true;
         _isPlaying = false;
         _activePosition = null;
         IsPromoting = false;
@@ -103,6 +102,8 @@ public class GameManager
 
         ColorPromoting = string.Empty;
     }
+    
+    public bool IsWhiteTurn { get; private set; }
     
     public string? Winner { get; private set; }
 
@@ -403,14 +404,14 @@ public class GameManager
             if (clickedPiece is null)
                 return false;
 
-            if (_isWhiteTurn && clickedPiece.Color == "black")
+            if (IsWhiteTurn && clickedPiece.Color == "black")
                 return false;
-            if (!_isWhiteTurn && clickedPiece.Color == "white")
+            if (!IsWhiteTurn && clickedPiece.Color == "white")
                 return false;
 
             var squaresToMove = GetSquaresToMove(position, clickedPiece);
 
-            squaresToMove = squaresToMove.Where(s => !ResultInCheck(position, s, _isWhiteTurn))
+            squaresToMove = squaresToMove.Where(s => !ResultInCheck(position, s, IsWhiteTurn))
                 .ToList();
 
             if (squaresToMove.Count == 0)
@@ -440,12 +441,12 @@ public class GameManager
 
                 if (pieceToMove.Name == "Pawn")
                 {
-                    if ((_isWhiteTurn && position.I == 0) ||
-                        (!_isWhiteTurn && position.I == 7))
+                    if ((IsWhiteTurn && position.I == 0) ||
+                        (!IsWhiteTurn && position.I == 7))
                     {
                         IsPromoting = true;
                         _positionToPromote = position;
-                        ColorPromoting = _isWhiteTurn ? "white" : "black";
+                        ColorPromoting = IsWhiteTurn ? "white" : "black";
                     }
                 }
 
@@ -456,7 +457,7 @@ public class GameManager
 
                 if (pieceToTake is not null)
                 {
-                    if (_isWhiteTurn)
+                    if (IsWhiteTurn)
                     {
                         PiecesTakenByWhite.Add(pieceToTake);
                     }
@@ -472,13 +473,13 @@ public class GameManager
                 _isPlaying = false;
                 UnLightUpSquares();
                 _activePosition = null;
-                _isWhiteTurn = !_isWhiteTurn;
+                IsWhiteTurn = !IsWhiteTurn;
 
                 if (!_isSimulated &&
-                    IsInCheck(_isWhiteTurn ? "white" : "black") &&
-                    IsCheckMate(_isWhiteTurn ? "white" : "black"))
+                    IsInCheck(IsWhiteTurn ? "white" : "black") &&
+                    IsCheckMate(IsWhiteTurn ? "white" : "black"))
                 {
-                    Winner = _isWhiteTurn ? "black" : "white";
+                    Winner = IsWhiteTurn ? "black" : "white";
                 }
             }
 
@@ -600,7 +601,7 @@ public class GameManager
         var simulated = new GameManager(CloneBoard());
         simulated._isPlaying = true;
         simulated._activePosition = fromPosition;
-        simulated._isWhiteTurn = isWhiteTurn;
+        simulated.IsWhiteTurn = isWhiteTurn;
 
         simulated.ClickSquare(toPosition);
 

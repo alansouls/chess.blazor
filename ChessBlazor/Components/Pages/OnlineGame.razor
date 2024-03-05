@@ -1,0 +1,35 @@
+@page "/online-game/{id:int}"
+@using ChessBlazor.Logic
+@using ChessBlazor.Components.Components
+@rendermode InteractiveServer
+
+@inject GameServer GameServer
+@inject NavigationManager Navigation
+
+<PageTitle>Online Game</PageTitle>
+
+<ChessGame GameManager="_gameManager" IsOnline="true" IsWhite="@(IsWhite ?? false)"></ChessGame>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    [SupplyParameterFromQuery]
+    public string? Password { get; set; }
+    
+    [SupplyParameterFromQuery]
+    public bool? IsWhite { get; set; }
+
+    private GameManager? _gameManager = null;
+
+    protected override void OnParametersSet()
+    {
+        if (Password is null || IsWhite is null)
+        {
+            Navigation.NavigateTo("online-match");
+            return;
+        }
+
+        _gameManager = GameServer.GetGameManager(Id, IsWhite.Value, Password);
+    }
+}

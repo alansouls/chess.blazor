@@ -1,0 +1,94 @@
+@page "/online-match"
+@using ChessBlazor.Logic
+@inject GameServer GameServer
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Online Match</PageTitle>
+
+@if (_validationError is not null)
+{
+    <div class="container">
+        <div class="alert alert-danger">
+            <p>@_validationError</p>
+        </div>
+    </div>
+}
+
+<div class="form-control">
+    <div class="mb-3">
+        <label for="roomIdInput" class="form-label">Room Id</label>
+        <input id="roomIdInput" class="form-text" type="text" @bind="_roomIdStr"/>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="preferenceSelect">Preference of color</label>
+        <select id="preferenceSelect" class="form-select" @bind="_preference">
+            <option value="">Any</option>
+            <option value="">White</option>
+            <option value="">Black</option>
+        </select>
+    </div>
+
+    @if (NeedPassword)
+    {
+        <div class="mb-3">
+            <div class="container">
+                <div class="alert alert-warning">
+                    <p>You need to provide a password</p>
+                </div>
+            </div>
+            <div class="form-control">
+                <label for="passwordInput" class="form-label">Room Id</label>
+                <input id="passwordInput" class="form-text" type="text" @bind="_password"/>
+            </div>
+        </div>
+    }
+
+    <button class="btn btn-info" @onclick="JoinButtonClicked">Join</button>
+</div>
+
+@code {
+
+    [SupplyParameterFromQuery]
+    public bool NeedPassword { get; set; }
+
+    private string? _validationError;
+
+    private string _roomIdStr;
+
+    private string _preference;
+
+    private string? _password;
+
+    protected override void OnInitialized()
+    {
+        _validationError = null;
+        _roomIdStr = "";
+        _preference = "";
+        _password = null;
+    }
+
+    private void JoinButtonClicked()
+    {
+        if (!int.TryParse(_roomIdStr, out var roomId))
+        {
+            _validationError = "Room Id must be an integer";
+
+            return;
+        }
+
+        var result = GameServer.JoinGame(roomId, _preference == string.Empty ? null : _preference, _password);
+
+        if (result.JoinedAsWhite || result.JoinedAsBlack)
+        {
+            Navigation.NavigateTo($"online-game/{roomId}?isWhite={result.JoinedAsWhite}&password={result.Password}");
+        }
+        else
+        {
+            Navigation.NavigateTo($"online-match?needPassword=true", true);
+        }
+    }
+
+}
+
