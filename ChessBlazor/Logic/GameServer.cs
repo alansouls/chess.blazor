@@ -41,8 +41,7 @@ public class GameServer
 
         if (preferenceColor is null or "white" && room.WhitePassword is null)
         {
-            var whitePassword = new string(Enumerable.Repeat(1, 20)
-                .Select(s => (char)Random.Shared.Next((int)'a', (int)'z')).ToArray());
+            var whitePassword = GeneratePassword();
             room = room with { WhitePassword = whitePassword };
 
             _roomsById[gameId] = room;
@@ -70,6 +69,7 @@ public class GameServer
 
     private static string GeneratePassword()
     {
-        return new string(Enumerable.Repeat((char)Random.Shared.Next((int)'a', (int)'z'), 20).ToArray());
+        return new string(Enumerable.Repeat(1, 20)
+            .Select(s => (char)Random.Shared.Next((int)'a', (int)'z')).ToArray());
     }
 }
