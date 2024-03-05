@@ -167,7 +167,10 @@ public class GameManager
             result.AddRange(GetSquaresInDirection(position, piece, direction, true));
         }
 
-        result.AddRange(GetSquaresToLitForCastle(position, piece));
+        if (!IsInCheck(piece.Color))
+        {
+            result.AddRange(GetSquaresToLitForCastle(position, piece));
+        }
     }
 
     private List<(int, int)> GetSquaresToLitForCastle((int I, int J) position, Piece piece)

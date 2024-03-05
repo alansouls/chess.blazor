@@ -47,7 +47,7 @@ else
             </div>
             @if (GameManager.IsPromoting)
             {
-                @if (!IsOnline || (IsWhite && GameManager.IsWhiteTurn) || (!IsWhite && !GameManager.IsWhiteTurn))
+                @if (!IsOnline || (IsWhite && !GameManager.IsWhiteTurn) || (!IsWhite && GameManager.IsWhiteTurn))
                 {
                     <h4>Select a piece to promote</h4>
                     <div class="game-hud-pieces-taken">
