@@ -623,7 +623,7 @@ public class GameManager
             {
                 var piece = GetPiece(i, j);
 
-                if (piece is not null && piece.Color == attackingColor)
+                if (piece is not null && piece.Color == attackingColor && piece.Name != "King")
                 {
                     var squaresToMove = GetSquaresToMove((i, j), piece);
 
